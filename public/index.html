@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mandalorian - Alquiler de capítulos</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <h1>Capítulos de The Mandalorian</h1>
+  <div id="lista"></div>
+
+  <script>
+    const temporizadores = {};
+  
+    async function cargarCapitulos() {
+      const res = await fetch('/capitulos');
+      const data = await res.json();
+  
+      const lista = document.getElementById('lista');
+      lista.innerHTML = '';
+  
+      data.forEach(cap => {
+        const div = document.createElement('div');
+        div.className = 'capitulo';
+  
+        let estadoTexto = '❌ Alquilado';
+        if (cap.estado === 'disponible') estadoTexto = '✅ Disponible';
+        if (cap.estado === 'reservado') estadoTexto = '⏳ Reservado';
+  
+        div.innerHTML = `
+          <strong>${cap.nombre}</strong> - <span id="estado-${cap.nombre}">${estadoTexto}</span>
+          <button onclick="alquilar('${cap.nombre}')">Alquilar</button>
+          <button onclick="devolver('${cap.nombre}')">Devolver</button>
+        `;
+  
+        lista.appendChild(div);
+
+      });
+    }
+  
+    async function alquilar(nombre) {
+  window.location.href = `/pago?capitulo=${encodeURIComponent(nombre)}`;
+    }
+
+  
+    async function devolver(nombre) {
+      const res = await fetch('/devolver', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ capitulo: nombre })
+      });
+      const data = await res.json();
+      if (data.exito) {
+        alert('Capítulo devuelto');
+        cargarCapitulos();
+      } else {
+        alert(data.mensaje);
+      }
+    }
+  
+    async function confirmarPago(nombre) {
+      const res = await fetch(`/confirmar-pago/${encodeURIComponent(nombre)}`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      alert(data.mensaje);
+  
+      // Limpiar el temporizador
+      clearTimeout(temporizadores[nombre]);
+      delete temporizadores[nombre];
+  
+      cargarCapitulos();
+    }
+  
+    cargarCapitulos();
+    setInterval(cargarCapitulos, 15000); // cada 15 segundos
+  </script>  
+</body>
+</html>

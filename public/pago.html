@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirmar Pago</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    .container {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    button {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="titulo">Procesando...</h1>
+    <p id="precio">Precio: $500</p>
+    <p id="timer">Tiempo restante: 4:00</p>
+    <button onclick="confirmarPago()">✅ Confirmar Pago</button>
+    <button onclick="cancelar()">❌ Cancelar</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const capitulo = urlParams.get('capitulo');
+    document.getElementById('titulo').textContent = `Capítulo: ${capitulo}`;
+
+    // Lógica para reservar el capítulo en el servidor
+    fetch(`/alquilar/${encodeURIComponent(capitulo)}`, { method: 'POST' })
+      .then(res => res.json())
+      .then(data => console.log(data))
+      .catch(err => console.error(err));
+
+    // Timer de 4 minutos
+    let tiempo = 4 * 60;
+    const timerEl = document.getElementById('timer');
+    const interval = setInterval(() => {
+      const min = Math.floor(tiempo / 60);
+      const seg = tiempo % 60;
+      timerEl.textContent = `Tiempo restante: ${min}:${seg.toString().padStart(2, '0')}`;
+      if (tiempo <= 0) {
+        clearInterval(interval);
+        alert('⏰ Tiempo agotado. La reserva expiró.');
+        window.location.href = '/';
+      }
+      tiempo--;
+    }, 1000);
+
+    function confirmarPago() {
+      // Aquí podrías agregar lógica real de pago, por ahora lo simulamos
+      fetch(`/confirmar/${encodeURIComponent(capitulo)}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert('✅ Pago confirmado. Capítulo alquilado.');
+          clearInterval(interval);
+          window.location.href = '/';
+        });
+    }
+
+    function cancelar() {
+      fetch(`/cancelar/${encodeURIComponent(capitulo)}`, { method: 'POST' })
+        .then(() => {
+          alert('❌ Pago cancelado. Reserva liberada.');
+          clearInterval(interval);
+          window.location.href = '/';
+        });
+    }
+  </script>
+</body>
+</html>

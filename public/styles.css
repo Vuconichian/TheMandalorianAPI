@@ -1,0 +1,15 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+    background-color: #111;
+    color: #fff;
+  }
+  .capitulo {
+    background: #222;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
+  }
+  button {
+    margin-left: 10px;
+  }

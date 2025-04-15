@@ -56,7 +56,6 @@
     }, 1000);
 
     function confirmarPago() {
-      // Aquí podrías agregar lógica real de pago, por ahora lo simulamos
       fetch(`/confirmar/${encodeURIComponent(capitulo)}`, { method: 'POST' })
         .then(res => res.json())
         .then(data => {

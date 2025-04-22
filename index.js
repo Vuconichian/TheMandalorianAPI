@@ -6,7 +6,9 @@ const app = express();
 const PORT = 4000;
 
 // Crear cliente Redis
-const client = redis.createClient();
+const client = redis.createClient({
+  url: 'redis://redis:6379'
+});
 client.connect();
 
 const ALQUILER_TEMPORESERVA = 4 * 60; // 4 minutos en segundos
